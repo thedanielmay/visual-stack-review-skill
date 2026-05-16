@@ -1,0 +1,7 @@
+{
+  "name": "visual-stack-review",
+  "description": "Document production stack analyser — detects the current renderer from PDF metadata, package.json, and HTML source signals, classifies the document type, and recommends whether to stay-and-fix or migrate. Handles three modes: render+source review, source-only pre-render advisory, and prospective intake. Always includes a stay+fix assessment; full migration comparison on request. Produces top 2-4 recommendations with 5-component effort breakdowns (source rewrite, layout-engine retuning, pipeline, ecosystem regression risk, author retraining) and plain-language summaries. Includes deep-dive references for Paged.js, WeasyPrint, Prince, Typst, headless Chrome, Playwright/Puppeteer, LaTeX, Pandoc, React-PDF/ReportLab, InDesign/Affinity, and wkhtmltopdf. Quarterly matrix review procedure included.",
+  "version": "1.0.0",
+  "author": { "name": "Daniel May", "email": "daniel@thedanielmay.com" },
+  "keywords": ["document-stack", "pdf-tooling", "pagedjs", "weasyprint", "prince", "typst", "migration", "stack-review", "document-engineering", "renderer-selection"]
+}

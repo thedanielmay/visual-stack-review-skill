@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "organization": "Document QA",
+  "date": "May 2026",
+  "abstract": "Document production stack analyser. Detects renderer from PDF metadata, package.json, and HTML signals. Classifies document type (designed report, data report, long-form prose, slide deck, form, invoice, marketing collateral, technical docs). Recommends stay-and-fix or migration with 5-component effort breakdown. Deep-dive references for 11 tools. Quarterly matrix review procedure with per-row capability questions, structured diff output format, and staleness detection. Expert-panel reviewed and revised: print-production claims corrected (PDF/X-4 vs X-1a, BleedBox/TrimBox, spec conformance vs press-readiness), migration costs re-rated with inline incompatibility lists, detection caveats for monorepos and CDN-loaded tools, CVE/abandonment carve-out from stay+fix."
+}
