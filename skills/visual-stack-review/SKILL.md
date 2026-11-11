@@ -2,7 +2,7 @@
 name: visual-stack-review
 description: "Analyzes the technology stack used (or planned) to produce a document — detects the current renderer, classifies the document type, and recommends whether to stay-and-fix or migrate to a better-suited tool. Handles three modes: render+source review, source-only pre-render advisory, and prospective (\"I'm going to build X\") intake. Always includes a \"stay + fix\" option with honest migration cost/benefit. Produces top 2-4 detailed recommendations with technical and plain-language trade-offs. Use when the user asks \"is this the right tool?\", \"what should I use to build this?\", \"why is my table pagination broken?\", or wants a technology stack recommendation for any document-production pipeline."
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   updated: "Wed 11 Nov 2026, version field added to match plugin.json"
 ---
 
