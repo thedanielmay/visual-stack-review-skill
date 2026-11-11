@@ -119,6 +119,6 @@ Once installed, invoke the skill by describing your document stack or asking a t
 
 ## Status
 
-Version `1.0.0` — initial release (May 2026).
+Version `1.0.1` — adds the `metadata.version` field; 1.0.0 was the initial release (May 2026).
 
 The tool comparison matrix was last reviewed **2026-05-16**. Next review due **2026-08-16**. Run `/visual-stack-review review-matrix` to trigger a structured review against current tool release activity.
