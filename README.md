@@ -109,9 +109,19 @@ Each reference file in `references/tools/` covers a single renderer or tool fami
 
 ---
 
-## Installation
+## Install
 
-This skill is distributed as a Claude Code plugin. Install it from the Claude Code plugin registry or by pointing Claude Code at this repository.
+Install from the marketplace in this repo:
+
+```
+/plugin install visual-stack-review --marketplace thedanielmay/visual-stack-review-skill
+```
+
+Or link a local checkout into your skills folder:
+
+```
+ln -s ~/projects/agent-tools/skills/visual-stack-review-skill/skills/visual-stack-review ~/.claude/skills/visual-stack-review
+```
 
 Once installed, invoke the skill by describing your document stack or asking a tool-choice question. Claude Code will recognise the intent and load the skill automatically.
 
@@ -119,6 +129,6 @@ Once installed, invoke the skill by describing your document stack or asking a t
 
 ## Status
 
-Version `1.0.1` — adds the `metadata.version` field; 1.0.0 was the initial release (May 2026).
+See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
 
 The tool comparison matrix was last reviewed **2026-05-16**. Next review due **2026-08-16**. Run `/visual-stack-review review-matrix` to trigger a structured review against current tool release activity.
