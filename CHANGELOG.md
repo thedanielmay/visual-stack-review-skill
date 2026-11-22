@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3 - 2026-11-23
+
+- Marketplace file gains a description, so the full check passes again (thedanielmay/agent-tools#10).
+
 ## 1.0.2 - 2026-11-22
 
 - Added a marketplace manifest, an MIT licence and this changelog.
