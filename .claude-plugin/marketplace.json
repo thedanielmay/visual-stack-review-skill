@@ -4,6 +4,9 @@
     "name": "Daniel May",
     "url": "https://github.com/thedanielmay"
   },
+  "metadata": {
+    "description": "Document production stack analyser. Detects the renderer behind a document, classifies the document type, and recommends whether to stay and fix or migrate to another tool."
+  },
   "plugins": [
     {
       "name": "visual-stack-review",
