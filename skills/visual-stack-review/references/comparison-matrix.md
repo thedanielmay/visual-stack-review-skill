@@ -35,7 +35,7 @@ Use this when the user needs to compare tools across a common set of axes. Inclu
 
 **†† Press-ready output** is not a tool capability — it is a workflow outcome. PDF/X spec conformance (above row) is a necessary but not sufficient condition. A press-ready file also requires: BleedBox + TrimBox set at 3mm offset from trim, an ICC OutputIntent profile matching the press condition (e.g. FOGRA51 for coated EU, GRACoL 2006 for US), total area coverage ≤ the printer's limit (typically 300% coated / 260% uncoated), overprint behaviour verified, and spot colours named exactly to the printer's ink library. **No HTML-to-PDF tool produces all of this automatically.** InDesign's ★★★★★ rating reflects its Ink Manager, Separations Preview, and prepress workflow — not just spec output. For commercial press work from any code-based tool, a prepress review step is required. "Prince is required for PDF/X at press" is false — Ghostscript can post-process any well-formed PDF to PDF/X-4.
 
-**wkhtmltopdf** is excluded — unmaintained since 2020, known CVEs. See `references/tools/wkhtmltopdf.md`.
+**wkhtmltopdf** gets no rating. It is unmaintained since 2020 and has known CVEs. Recommend moving away from wkhtmltopdf. See `references/tools/wkhtmltopdf.md` for the three narrow stay conditions.
 
 ### Matrix reading guide
 

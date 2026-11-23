@@ -20,7 +20,7 @@ If you are currently running wkhtmltopdf in production, you are running on a bro
 - Has known JavaScript execution bugs
 - Has CSS rendering bugs that will never be fixed
 
-**The only question for wkhtmltopdf users is not "should I migrate?" but "which tool should I migrate to?"**
+**For most wkhtmltopdf users, the open question is which tool to migrate to.**
 
 ---
 
@@ -125,12 +125,8 @@ This is why you still find it in enterprise codebases built before 2020. It work
 
 ---
 
-## When you might stay on wkhtmltopdf (narrow circumstances)
+## When you can stay on wkhtmltopdf
 
-Only if ALL of these are true:
-- Your HTML is static, simple, and uses only pre-2016 CSS
-- You have no intention of updating the HTML templates
-- The documents are internal-only (no security exposure)
-- Migration effort genuinely cannot be justified (e.g. legacy system being decommissioned in 6 months)
+Recommend moving away from wkhtmltopdf. Stay only when all three conditions hold: the templates are simple and will not change, the tool never renders untrusted HTML or URLs, and the report states that wkhtmltopdf is archived and gets no security fixes. Name a known CVE only if the repo already names one.
 
-In every other circumstance, migration is the right call. wkhtmltopdf is not a stable foundation for new work.
+A legacy system due for decommission in six months is not a fourth condition. It only matters when the three conditions already hold. In every other circumstance, migration is the right call. wkhtmltopdf is not a stable foundation for new work.

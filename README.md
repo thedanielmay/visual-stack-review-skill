@@ -60,7 +60,7 @@ Classifies the document into one of eight types: designed report, data report, l
 
 For the current stack: genuine strengths for this document type, fixable pain points (CSS bugs, configuration gaps), structural limitations (things that cannot be resolved within the tool), and a plain-language verdict on whether staying is the right call.
 
-Unmaintained or CVE-carrying stacks (wkhtmltopdf) are excluded from this option — only a migration brief is produced.
+Recommend moving away from wkhtmltopdf. Stay only when all three conditions hold: the templates are simple and will not change, the tool never renders untrusted HTML or URLs, and the report states that wkhtmltopdf is archived and gets no security fixes. Name a known CVE only if the repo already names one.
 
 ### Alternative comparison (Phase 4, on request or when structural limits found)
 

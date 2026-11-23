@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0 - 2026-11-23
+
+- Settled one wkhtmltopdf rule. The skill recommends moving away. Staying requires simple templates that will not change, no untrusted HTML or URLs, and a report that states the archived tool gets no security fixes. The description, the working principles and the wkhtmltopdf deep dive now say the same thing, and the README, the matrix note and the detection note agree.
+- Added two intake questions. Ask for the printer's specification (bleed, trim size, colour profile and PDF/X level) when output goes to print. Ask for the accessibility requirement (tagged PDF or PDF/UA) when people need accessible documents. A file is press-ready or accessible only when the stated standard is checked and met. Unchecked items are reported as "not checked".
+- Moved the detection catalogue into `references/detection.md` and left a one-line load trigger in `SKILL.md`. Merged the two Chrome detection sections into one, keeping the Chrome 131 margin boxes, named pages and Skia/PDF producer facts. Kept the recommendation format, the migration-cost axes, the wkhtmltopdf rule and the press-ready checks in `SKILL.md`.
+
 ## 1.1.1 - 2026-11-23
 
 - Corrected the Chrome 131 facts. Chrome supports named pages and `@page` margin boxes with page counters. It still lacks running elements with `position: running()` and `string-set` / `string()`, and it lacks footnotes.
