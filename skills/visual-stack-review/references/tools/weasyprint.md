@@ -11,7 +11,7 @@
 
 ## What WeasyPrint actually is
 
-WeasyPrint is a Python library that converts HTML+CSS to PDF using its own layout engine — not a browser. This is the fundamental difference from Paged.js/Puppeteer: it interprets CSS itself rather than delegating to Chromium. This means it gets some things right that Chromium gets wrong for print (e.g. CSS Paged Media support without a polyfill), and gets some things wrong that Chromium gets right (e.g. modern CSS features like `grid` subgrid, `container queries`).
+WeasyPrint is a Python library that converts HTML+CSS to PDF using its own layout engine, not a browser. This is the fundamental difference from Paged.js/Puppeteer: it interprets CSS itself rather than delegating to Chromium. This means it gets some things right that Chromium gets wrong for print, such as full CSS Paged Media support without a polyfill. As of Chrome 131, Chromium handles named pages and `@page` margin boxes natively, but still lacks running elements and footnotes. WeasyPrint also gets some things wrong that Chromium gets right, such as modern CSS features like `grid` subgrid and `container queries`.
 
 ---
 

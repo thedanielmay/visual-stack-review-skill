@@ -29,7 +29,7 @@ Use this when the user needs to compare tools across a common set of axes. Inclu
 | Human-readable source | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★☆ | ★★★★★ | ★★★☆☆ | ★★☆☆☆ | ★★☆☆☆ | ✗ (binary) |
 | Version control / CI-friendly | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★★ | ★☆☆☆☆ |
 | Learning curve | Medium | Low | Low | High | Medium | Very High | Medium | Medium | High |
-| License cost | Free | Free | $$$ (~$495/yr) | Free | Free | Free | Free | Free / Pro | $$$ ($55/mo) |
+| License cost | Free | Free | $$$ (Prince has a one-time server licence of about USD 495, plus a personal or non-commercial option. Check princexml.com for current prices.) | Free | Free | Free | Free | Free / Pro | $$$ ($55/mo) |
 | Ecosystem | Node | Python | Any | Any | Node | Any | Node/React | Python | macOS/Win GUI |
 | Maintenance status | Active | Active | Active | Active | Active (Google) | Active | Active | Active | Active |
 
@@ -46,5 +46,7 @@ Use this when the user needs to compare tools across a common set of axes. Inclu
 **"Text typesetting quality"** — line-breaking, hyphenation, spacing, paragraph texture. LaTeX and Prince are the reference standard.
 
 **"Running headers/footers — WeasyPrint"** — updated to ★★★★☆ for WeasyPrint ≥ v60 (Nov 2023), which substantially improved named-string and running-element support. If on < v60, treat as ★★★☆☆. Upgrade before evaluating.
+
+**Headless Chrome (bare), as of Chrome 131.** Chrome supports named pages with the `page` property and `@page` margin boxes with page counters. Chrome does not support the full CSS Paged Media specification. It lacks running elements with `position: running()` and `string-set` / `string()`, and it lacks footnotes. The running headers/footers rating above reflects that partial support.
 
 **Interpretation note:** ⚠️ means "technically supported but known bugs require workarounds." Check the relevant deep-dive file before committing.

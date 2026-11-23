@@ -3,7 +3,7 @@
 **Version at time of writing:** Prince 15.x  
 **License:** Commercial ($$$)  
 **Language:** Any (CLI tool, accepts HTML+CSS)  
-**Cost:** ~USD $495 for a standalone server license (one-time); ~$50/month SaaS (DocRaptor)  
+**Cost:** Prince has a one-time server licence of about USD 495, plus a personal or non-commercial option. Check princexml.com for current prices.  
 **Install:** Download from princexml.com; or use DocRaptor API
 
 ---
@@ -54,7 +54,7 @@ Prince has been developed since 2003 and is used by major publishers (O'Reilly b
 
 ## Where Prince loses to alternatives
 
-**Cost.** $495 for a standalone license is a real barrier for small projects or individual developers. The SaaS offering (DocRaptor) charges per render, which adds up for high-volume generation. Paged.js and WeasyPrint are free.
+**Cost.** The one-time server licence of about USD 495 is a real barrier for small projects or individual developers. A personal or non-commercial option exists. Check princexml.com for current prices. The SaaS offering (DocRaptor) charges per render, which adds up for high-volume generation. Paged.js and WeasyPrint are free.
 
 **Proprietary.** Prince is not open source. If the company discontinues development or is acquired, you are exposed. This matters for long-term infrastructure decisions.
 
@@ -68,9 +68,9 @@ Prince has been developed since 2003 and is used by major publishers (O'Reilly b
 
 ## Licensing model in detail
 
-**Standalone license:** One-time purchase (~$495 at current pricing). Runs on your own servers. Unlimited renders. No per-render cost. This is the right choice for internal tooling that renders frequently.
+**Standalone licence:** Prince has a one-time server licence of about USD 495, plus a personal or non-commercial option. Check princexml.com for current prices. Runs on your own servers. Unlimited renders. No per-render cost. This is the right choice for internal tooling that renders frequently.
 
-**Personal license:** ~$49/year. Single developer, non-commercial use. Good for evaluation or side projects.
+**Personal licence:** A personal option covers a single developer and non-commercial use. Good for evaluation or side projects. Check princexml.com for current prices.
 
 **SaaS via DocRaptor:** Per-render pricing starting at ~$15/month for 125 renders. No server setup. Good for low-volume production use or prototyping.
 

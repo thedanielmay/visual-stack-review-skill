@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.1 - 2026-11-23
+
+- Corrected the Chrome 131 facts. Chrome supports named pages and `@page` margin boxes with page counters. It still lacks running elements with `position: running()` and `string-set` / `string()`, and it lacks footnotes.
+- Corrected Chrome PDF detection. PDFs made by Chrome and Puppeteer usually carry `Producer: Skia/PDF mNNN` and `Creator: Chromium` or `HeadlessChrome`. Detection no longer keys on `Producer: Chromium`.
+- Corrected the Paged.js signals. Use the package dependency, the polyfill script tag or the PDF Producer. The `.pagedjs_page` class exists only in the rendered DOM. Shared CSS features such as `@page`, `running()` and `string()` identify a paged-media engine, not a specific engine.
+- Made the Prince price consistent across the skill. Prince has a one-time server licence of about USD 495, plus a personal or non-commercial option. Check princexml.com for current prices.
+
 ## 1.1.0 - 2026-11-23
 
 - Moved the tool comparison matrix and its reading guide into `references/comparison-matrix.md`.

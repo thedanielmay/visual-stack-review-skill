@@ -44,11 +44,13 @@ Detects the current renderer from three signal classes:
 
 - **PDF metadata** — `Producer` / `Creator` fields from `pdfinfo` (most reliable for identifying the actual renderer used)
 - **Project files** — `package.json`, `requirements.txt`, `pyproject.toml`, `Makefile`, build scripts
-- **HTML/source signals** — CSS `@page` rules, `.pagedjs_page` class, vendor-prefixed properties, source file extensions (`.tex`, `.typ`)
+- **HTML/source signals** — the Paged.js polyfill script tag, CSS `@page` rules, vendor-prefixed properties, source file extensions (`.tex`, `.typ`)
+
+`@page` rules only show that a paged-media engine is in use. Paged.js, WeasyPrint and Prince all use them. The `.pagedjs_page` class exists in the rendered DOM, not in the source files. Name Paged.js from the package dependency, the polyfill script tag or the PDF Producer.
 
 Supports detection of: Paged.js, WeasyPrint, PrinceXML, Puppeteer, Playwright (headless Chrome), wkhtmltopdf, LaTeX/XeLaTeX/LuaLaTeX, Typst, InDesign, Affinity Publisher, Word/LibreOffice, React-PDF, ReportLab/fpdf2, Pandoc pipelines, and Docusaurus/Hugo/Sphinx.
 
-Each detection result includes a confidence rating (`confident` / `likely` / `possible` / `unknown`) and lists the specific signals that support it. Known misleading cases are called out — monorepos, CDN-loaded Paged.js, the Chromium Producer field shared by multiple renderers.
+Each detection result includes a confidence rating (`confident` / `likely` / `possible` / `unknown`) and lists the specific signals that support it. Known misleading cases are called out, including monorepos and CDN-loaded Paged.js. Chrome and Puppeteer PDFs usually carry `Producer: Skia/PDF mNNN` and `Creator: Chromium` or `HeadlessChrome`. That metadata does not name the pagination engine. Do not key Chrome detection on `Producer: Chromium`.
 
 ### Document classification (Phase 2)
 
