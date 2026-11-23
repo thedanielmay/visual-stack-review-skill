@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 - 2026-11-23
+
+- Moved the tool comparison matrix and its reading guide into `references/comparison-matrix.md`.
+- Moved the matrix review procedure into `references/matrix-review.md`.
+- Added pointer lines in `SKILL.md` for both references, cutting the body under 500 lines.
+
 ## 1.0.4 - 2026-11-23
 
 - Adds the marketplace icon approved by Daniel (thedanielmay/agent-tools#2).
