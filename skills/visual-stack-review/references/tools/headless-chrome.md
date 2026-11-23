@@ -11,7 +11,7 @@ Chrome-based PDF generation has layers that are often confused:
 ```
 Your HTML + CSS
        ↓
-[Paged.js polyfill] ← optional, adds CSS Paged Media support
+[Paged.js polyfill] ← optional, fills gaps in Chrome's Paged Media support
        ↓
 [Puppeteer / Playwright / pagedjs-cli] ← automation library
        ↓
@@ -30,25 +30,24 @@ When you call `page.pdf()` in Puppeteer/Playwright (which calls Chrome's `Page.p
 
 **Supported natively:**
 - `@media print` CSS rules
-- `@page { margin: ... }` — page margin control
-- `break-before`, `break-after`, `break-inside` — page break hints
-- `page-break-before`, `page-break-after` — legacy equivalents
+- `@page { margin: ... }` page margin control
+- Named pages with the `page` property and separate `@page <name>` rules
+- As of Chrome 131, `@page` margin boxes such as `@top-center` with page counters
+- `break-before`, `break-after`, `break-inside` page break hints
+- `page-break-before`, `page-break-after` legacy equivalents
 - Background printing (`printBackground: true` option)
 - Custom page sizes and orientations
 - Scale factor
-- Header and footer templates (`headerTemplate`, `footerTemplate`) — but see limitations below
+- Header and footer templates (`headerTemplate`, `footerTemplate`), with the limitations described below
 
-**NOT supported natively (without Paged.js):**
-- `@page` margin box content (`@top-left`, `@bottom-center`, etc.)
-- `string()` and `element()` — CSS running content for dynamic headers
-- `running()` — flowing content into margin boxes
-- Named pages (`page: named-page`) with separate `@page named-page` rules
-- CSS `counter()` in page margin boxes
-- `orphans` and `widows` CSS properties — Chrome ignores these
-- `float: footnote` — CSS footnote support
-- `marks: crop cross` — crop marks
+**Not supported natively, even in Chrome 131:**
+- Running elements with `position: running()` and `string-set` / `string()`
+- Footnotes with `float: footnote`
+- The full CSS Paged Media specification
+- `orphans` and `widows` CSS properties. Chrome ignores these.
+- `marks: crop cross` crop marks
 
-This is the core gap that Paged.js exists to fill.
+Chrome covers part of CSS Paged Media natively. Paged.js fills the remaining gaps, mainly running content and footnotes.
 
 ---
 
@@ -195,7 +194,7 @@ Chrome's PDF rendering does change between major versions. Known areas of versio
 
 **Background color on `<html>` or `<body>` does not fill the page margin area.** The background only fills the content area. For full-page background colors in PDF: use `@page { background-color: ... }` in `@media print` — but Chrome's support for this is inconsistent. Most reliable: set a background on a full-page `<div>` with `position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1`. This `position: fixed` element will repeat on every page. (This is the same root cause as Paged.js PJ-1, because Paged.js runs inside Chrome.)
 
-**`position: fixed` header/footer without Paged.js:** A common pattern for adding headers/footers to Chrome-printed PDFs is to use `position: fixed` elements in the HTML body. These render on every page. Limitations: they consume page space (content may be hidden behind them), they can't adapt to page-specific content, and they don't have access to page numbers (without JavaScript tricks). Use the `headerTemplate`/`footerTemplate` approach for simple page numbers, or Paged.js for complex running content.
+**`position: fixed` header/footer without Paged.js:** A common pattern for adding headers and footers to Chrome-printed PDFs is to use `position: fixed` elements in the HTML body. These render on every page. The limitations are that they consume page space, they cannot adapt to page-specific content and they have no page number. Use `@page` margin boxes with page counters in Chrome 131 or later. Use Paged.js for running content that pulls text from the document.
 
 **Subpixel rendering differences:** Chrome's PDF output uses a different text rendering path than its screen rendering. Fonts that appear perfectly kerned on screen may have very slightly different spacing in PDF. This is usually not visible to the naked eye but can affect tight layouts.
 
@@ -211,12 +210,12 @@ Chrome's PDF rendering does change between major versions. Known areas of versio
 
 ## When to add Paged.js on top of Chrome
 
-- Running headers with dynamic content (section titles, document title)
-- CSS counter-based page numbers in styled headers/footers
-- Named pages (different `@page` rules for different page types)
+- Running headers that pull text from the document with `string-set` / `string()`
+- Running elements with `position: running()`
+- Footnotes with `float: footnote`
 - Precise widow/orphan control for long-form text
-- `float: footnote` CSS footnotes
-- Any CSS Paged Media feature
+
+Named pages and page counters in `@page` margin boxes are native as of Chrome 131. Add Paged.js for the running content and footnotes that Chrome does not implement.
 
 ## When to choose a different renderer entirely
 

@@ -3,8 +3,8 @@ name: visual-stack-review
 description: "Analyzes the technology stack used (or planned) to produce a document — detects the current renderer, classifies the document type, and recommends whether to stay-and-fix or migrate to a better-suited tool. Handles three modes: render+source review, source-only pre-render advisory, and prospective (\"I'm going to build X\") intake. Always includes a \"stay + fix\" option with honest migration cost/benefit. Produces top 2-4 detailed recommendations with technical and plain-language trade-offs. Use when the user asks \"is this the right tool?\", \"what should I use to build this?\", \"why is my table pagination broken?\", or wants a technology stack recommendation for any document-production pipeline."
 license: MIT
 metadata:
-  version: "1.1.0"
-  updated: "Wed 11 Nov 2026, version field added to match plugin.json"
+  version: "1.1.1"
+  updated: "Mon 23 Nov 2026, corrected Chrome 131, PDF producer and Prince pricing facts"
 ---
 
 # Visual Stack Review
@@ -64,10 +64,11 @@ Detect as much as possible before asking the user anything. Document your findin
 ### Detection signals by stack
 
 **Paged.js**
-- HTML source: `.pagedjs_page` class, `import 'pagedjs'`, `<script src="paged.polyfill.js">`, `@page` rules in CSS
 - package.json: `"pagedjs"` or `"pagedjs-cli"` in dependencies
+- HTML source: the polyfill script tag `<script src="paged.polyfill.js">` or `import 'pagedjs'`
 - PDF metadata: `Producer: pagedjs-cli` or `Producer: Paged.js`
-- CSS patterns: `@page { margin: ... }`, `running()`, `element()`, `string()`
+- Runtime DOM: the `.pagedjs_page` class appears after the polyfill runs. Inspect the rendered page, not the source files.
+- Paged.js runs inside Chrome, so Chrome-style PDF metadata can appear too. Name Paged.js from the dependency, the script tag or the PDF Producer.
 
 **WeasyPrint**
 - Python requirements: `weasyprint` in requirements.txt or pyproject.toml
@@ -84,8 +85,8 @@ Detect as much as possible before asking the user anything. Document your findin
 **Puppeteer / Playwright (headless Chrome)**
 - package.json: `"puppeteer"` or `"playwright"` in dependencies
 - Build scripts: `page.pdf()` calls, `--headless` flags
-- PDF metadata: `Producer: Chromium` or `Producer: Chrome` without Paged.js signals
-- No `@page` CSS (Puppeteer doesn't support CSS Paged Media without Paged.js)
+- PDF metadata: `Producer: Skia/PDF mNNN` with `Creator: Chromium` or `HeadlessChrome`
+- Chrome supports named pages and, as of Chrome 131, `@page` margin boxes with page counters. Treat `@page` CSS as a paged-media signal, not as proof of Paged.js.
 
 **wkhtmltopdf** ⚠️ UNMAINTAINED
 - PDF metadata: `Producer: Qt` or `wkhtmltopdf`
@@ -95,11 +96,17 @@ Detect as much as possible before asking the user anything. Document your findin
 - IMPORTANT: if detected, flag immediately — this is dead infrastructure. See `references/tools/wkhtmltopdf.md` for migration urgency assessment.
 
 **Headless Chrome (bare, no Paged.js)**
-- PDF metadata: `Producer: Chromium` or `Producer: Chrome` — but WITHOUT Paged.js signals
-- package.json: `"puppeteer"` or `"playwright"` — but NO `"pagedjs"` in dependencies
+- PDF metadata: `Producer: Skia/PDF mNNN` with `Creator: Chromium` or `HeadlessChrome`
+- package.json: `"puppeteer"` or `"playwright"` with no `"pagedjs"` in dependencies
 - Build: `page.pdf()` calls without `waitForFunction(() => window.PagedPolyfill?.done)`
-- Signal: no `@page` CSS Paged Media rules in stylesheets, uses `@media print` only
-- Distinguish from Paged.js: check for absence of `.pagedjs_page` class in HTML and absence of `pagedjs` in package.json
+- No Paged.js polyfill script tag in HTML and no Paged.js PDF Producer
+- Chrome has native paged-media support as of Chrome 131. `@page` rules alone do not identify Paged.js.
+
+**Paged-media engine (shared CSS features, engine-agnostic)**
+- CSS: `@page`, the `page` property, `running()`, `string()`, `@top-center` and other margin boxes
+- Paged.js, WeasyPrint and Prince all use these rules
+- These rules show that a paged-media engine handles the layout. They do not name the engine.
+- Name the engine from package dependencies, build commands, the polyfill script tag or PDF metadata
 
 **LaTeX / XeLaTeX / LuaLaTeX**
 - Source files: `.tex`, `.sty`, `.cls` extensions
@@ -156,7 +163,7 @@ Detection signals can and do mislead. Common failure modes:
 - **Monorepos:** `pagedjs` may sit in a sibling workspace with no relationship to the PDF being reviewed. Always check which workspace produced the artifact.
 - **CDN-loaded tools:** Paged.js is frequently loaded via `<script src=".../paged.polyfill.js">` with no npm entry at all. Absence of `pagedjs` in package.json does NOT mean Paged.js isn't in use.
 - **Dead dependencies:** Legacy projects carry unused deps for years. A package in package.json is evidence, not proof.
-- **Chromium Producer field:** PDFs produced by Paged.js, bare Playwright, and bare Puppeteer all report `Producer: Chromium` or `Producer: Skia/PDF`. You cannot distinguish Paged.js from bare Chrome from metadata alone — you must also check HTML source for `.pagedjs_page` class and CSS for `@page` running-content rules.
+- **Shared Chrome metadata:** PDFs made by Chrome and Puppeteer usually carry `Producer: Skia/PDF mNNN` and `Creator: Chromium` or `HeadlessChrome`. Do not key Chrome detection on `Producer: Chromium`. That metadata does not name the pagination engine. Name Paged.js from the package dependency, the polyfill script tag or `Producer: pagedjs-cli` or `Producer: Paged.js`. Check the rendered DOM for `.pagedjs_page`, since the class does not exist in the source files.
 - **Pandoc pipelines:** PDF metadata reflects the backend engine (LaTeX, WeasyPrint), not Pandoc itself. Check for `pandoc` in build scripts separately.
 
 **Rule:** Always corroborate package.json against PDF metadata AND at least one HTML/source signal before labelling confidence above `possible`. If signals disagree, list them all and ask the user.
@@ -220,7 +227,7 @@ Present these as a short, friendly set of questions — not a form. Frame each o
 
 **Ask only if not detected:**
 4. **Ecosystem preference** — Python, Node, other, or no preference?
-5. **Commercial tools acceptable?** (Prince costs ~$500/year; InDesign costs $55/month)
+5. **Commercial tools acceptable?** (Prince has a one-time server licence of about USD 495, plus a personal or non-commercial option. Check princexml.com for current prices. InDesign costs $55/month)
 6. **Is the source meant to be version-controlled and human-readable?** (rules out WYSIWYG tools)
 
 **Ask only in Mode C (prospective):**

@@ -10,17 +10,17 @@
 
 Puppeteer and Playwright are browser automation libraries. In the context of PDF generation, they control a headless Chrome or Chromium browser, load your HTML, and call the browser's built-in `Page.printToPDF()` function. The result is exactly what Chrome would print if you hit Cmd+P.
 
-This is fundamentally different from Paged.js: Paged.js IS a polyfill that runs inside Chrome to implement CSS Paged Media. Puppeteer/Playwright WITHOUT Paged.js use Chrome's native print CSS (`@media print`) — which does not implement CSS Paged Media features like running headers/footers, `string()`, `element()`, or `@page` margin boxes.
+This is fundamentally different from Paged.js: Paged.js IS a polyfill that runs inside Chrome to fill the gaps in Chrome's CSS Paged Media support. Puppeteer/Playwright WITHOUT Paged.js use Chrome's native print CSS. As of Chrome 131, Chrome supports named pages and `@page` margin boxes with page counters. Chrome still lacks running elements with `position: running()` and `string-set` / `string()`, and it lacks footnotes.
 
 Key distinction:
-- **Paged.js + pagedjs-cli** = headless Chrome + CSS Paged Media polyfill → full pagination control
-- **Puppeteer/Playwright alone** = headless Chrome + native print CSS only → limited pagination, no running headers
+- **Paged.js + pagedjs-cli** = headless Chrome + CSS Paged Media polyfill for running content and footnotes
+- **Puppeteer/Playwright alone** = headless Chrome + native print CSS, with native named pages and margin boxes as of Chrome 131
 
 ---
 
 ## Quality ceiling for designed documents
 
-**Honest ceiling:** Using Puppeteer/Playwright alone (without Paged.js), the ceiling is moderate. You get everything `@media print` CSS can express — which is significant but does not include dynamic headers/footers with page numbers, named pages, or CSS counter-based TOC generation.
+**Honest ceiling:** Using Puppeteer/Playwright alone (without Paged.js), the ceiling is moderate. You get everything `@media print` CSS can express. As of Chrome 131, that includes named pages and page counters in `@page` margin boxes. It does not include running content that pulls text from the document, or footnotes.
 
 With Paged.js loaded inside the Puppeteer/Playwright page, the ceiling matches Paged.js's ceiling (see pagedjs.md).
 
@@ -46,9 +46,9 @@ With Paged.js loaded inside the Puppeteer/Playwright page, the ceiling matches P
 
 **Running headers/footers are second-class.** Chrome's native `page.pdf()` accepts `headerTemplate` and `footerTemplate` parameters, but these are limited plain-HTML fragments that do not have access to your page's CSS or JavaScript. You cannot easily style them with your brand CSS, use CSS custom properties in them, or reference content from the page. This is the single biggest practical limitation for document production.
 
-**Workaround cost:** Many teams solve this by using absolute-positioned fixed headers/footers in the page body and relying on `@media print` CSS to control page breaks. This works but requires significant layout discipline — elements positioned outside the normal flow on every page.
+**Workaround cost:** Many teams solve this by using absolute-positioned fixed headers/footers in the page body and relying on `@media print` CSS to control page breaks. This works but requires significant layout discipline. In Chrome 131 or later, try `@page` margin boxes before fixed-position elements.
 
-**CSS Paged Media is not supported natively.** Without Paged.js, `@page { @top-left { ... } }`, `string()`, `running()`, and CSS named counters for page numbers do not work. You get `@page { margin: ... }` but nothing inside the margin boxes.
+**CSS Paged Media is only partly supported natively.** As of Chrome 131, `@page` margin boxes such as `@top-center` and page counters work. Running elements with `position: running()` and `string-set` / `string()` do not work. Footnotes do not work. Use Paged.js for those features.
 
 **Pagination is uncontrolled.** Chrome decides where to break pages. `break-before: page` and `break-after: page` work, but `widows`, `orphans`, and fine-grained pagination control are unreliable without Paged.js.
 
