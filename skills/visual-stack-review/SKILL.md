@@ -1,10 +1,10 @@
 ---
 name: visual-stack-review
-description: "Analyzes the technology stack used (or planned) to produce a document — detects the current renderer, classifies the document type, and recommends whether to stay-and-fix or migrate to a better-suited tool. Handles three modes: render+source review, source-only pre-render advisory, and prospective (\"I'm going to build X\") intake. Always includes a \"stay + fix\" option with honest migration cost/benefit. Produces top 2-4 detailed recommendations with technical and plain-language trade-offs. Use when the user asks \"is this the right tool?\", \"what should I use to build this?\", \"why is my table pagination broken?\", or wants a technology stack recommendation for any document-production pipeline."
+description: "Analyzes the technology stack used (or planned) to produce a document — detects the current renderer, classifies the document type, and recommends whether to stay-and-fix or migrate to a better-suited tool. Handles three modes: render+source review, source-only pre-render advisory, and prospective (\"I'm going to build X\") intake. Offers stay-and-fix with honest migration costs, except for wkhtmltopdf: it recommends moving away and allows staying only in three narrow conditions. Produces top 2-4 detailed recommendations with technical and plain-language trade-offs. Use when the user asks \"is this the right tool?\", \"what should I use to build this?\", \"why is my table pagination broken?\", or wants a technology stack recommendation for any document-production pipeline."
 license: MIT
 metadata:
-  version: "1.1.1"
-  updated: "Mon 23 Nov 2026, corrected Chrome 131, PDF producer and Prince pricing facts"
+  version: "1.2.0"
+  updated: "Mon 23 Nov 2026, wkhtmltopdf rule, print and accessibility intake, detection reference"
 ---
 
 # Visual Stack Review
@@ -53,146 +53,11 @@ ls .typstrc typst.toml 2>/dev/null
 ls Makefile GNUmakefile 2>/dev/null
 ```
 
-Also check if there's a `pdfinfo`-readable PDF and extract Producer/Creator fields — these are the most reliable stack signals.
-
 ---
 
 ## Phase 1 — Stack detection
 
-Detect as much as possible before asking the user anything. Document your findings and confidence level for each signal.
-
-### Detection signals by stack
-
-**Paged.js**
-- package.json: `"pagedjs"` or `"pagedjs-cli"` in dependencies
-- HTML source: the polyfill script tag `<script src="paged.polyfill.js">` or `import 'pagedjs'`
-- PDF metadata: `Producer: pagedjs-cli` or `Producer: Paged.js`
-- Runtime DOM: the `.pagedjs_page` class appears after the polyfill runs. Inspect the rendered page, not the source files.
-- Paged.js runs inside Chrome, so Chrome-style PDF metadata can appear too. Name Paged.js from the dependency, the script tag or the PDF Producer.
-
-**WeasyPrint**
-- Python requirements: `weasyprint` in requirements.txt or pyproject.toml
-- PDF metadata: `Producer: WeasyPrint` (includes version)
-- HTML source: WeasyPrint-specific CSS comments, or lack of JS-dependent features
-- Build scripts: `weasyprint input.html output.pdf` in Makefile or shell scripts
-
-**Prince / PrinceXML**
-- PDF metadata: `Producer: Prince` (very distinctive)
-- CSS: `-prince-*` vendor-prefixed properties
-- HTML: `<?xml-stylesheet ... ?>` processing instructions common in Prince workflows
-- Build: `prince input.html -o output.pdf`
-
-**Puppeteer / Playwright (headless Chrome)**
-- package.json: `"puppeteer"` or `"playwright"` in dependencies
-- Build scripts: `page.pdf()` calls, `--headless` flags
-- PDF metadata: `Producer: Skia/PDF mNNN` with `Creator: Chromium` or `HeadlessChrome`
-- Chrome supports named pages and, as of Chrome 131, `@page` margin boxes with page counters. Treat `@page` CSS as a paged-media signal, not as proof of Paged.js.
-
-**wkhtmltopdf** ⚠️ UNMAINTAINED
-- PDF metadata: `Producer: Qt` or `wkhtmltopdf`
-- Build scripts: `wkhtmltopdf` commands in Makefile, Rakefile, or shell scripts
-- Gems/packages: `wicked_pdf` (Rails), `pdfkit` (Python/Ruby)
-- Signal: older projects (pre-2020), often Rails/Django stacks
-- IMPORTANT: if detected, flag immediately — this is dead infrastructure. See `references/tools/wkhtmltopdf.md` for migration urgency assessment.
-
-**Headless Chrome (bare, no Paged.js)**
-- PDF metadata: `Producer: Skia/PDF mNNN` with `Creator: Chromium` or `HeadlessChrome`
-- package.json: `"puppeteer"` or `"playwright"` with no `"pagedjs"` in dependencies
-- Build: `page.pdf()` calls without `waitForFunction(() => window.PagedPolyfill?.done)`
-- No Paged.js polyfill script tag in HTML and no Paged.js PDF Producer
-- Chrome has native paged-media support as of Chrome 131. `@page` rules alone do not identify Paged.js.
-
-**Paged-media engine (shared CSS features, engine-agnostic)**
-- CSS: `@page`, the `page` property, `running()`, `string()`, `@top-center` and other margin boxes
-- Paged.js, WeasyPrint and Prince all use these rules
-- These rules show that a paged-media engine handles the layout. They do not name the engine.
-- Name the engine from package dependencies, build commands, the polyfill script tag or PDF metadata
-
-**LaTeX / XeLaTeX / LuaLaTeX**
-- Source files: `.tex`, `.sty`, `.cls` extensions
-- PDF metadata: `Producer: pdfTeX`, `XeTeX`, `LuaTeX`, or `MiKTeX`
-- Build: `latexmk`, `pdflatex`, `xelatex`, `lualatex` in Makefile
-- Sub-variant detection: `pdfTeX` → pdfLaTeX; `XeTeX` → XeLaTeX (modern fonts); `LuaTeX` → LuaLaTeX (scripting)
-- Pandoc pipeline signal: `.md` source + `pandoc` in build scripts + LaTeX metadata in PDF
-
-**Typst**
-- Source files: `.typ` extension
-- PDF metadata: `Producer: typst`
-- Build: `typst compile` commands
-- Config: `typst.toml` or `.typstrc` in project root
-
-**InDesign / Affinity Publisher / GUI layout tools**
-- PDF metadata: `Creator: Adobe InDesign CC 20xx` → InDesign
-- PDF metadata: `Creator: Affinity Publisher` → Affinity Publisher
-- No editable source code — layout tool output; binary `.indd` / `.afpub` files
-- Signal: very high-quality font subsetting, named spot colors in PDF metadata, ICC profiles embedded
-- Signal: `Trapped: False` and bleed box metadata → print-production intent
-
-**Word / LibreOffice**
-- PDF metadata: `Creator: Microsoft Word` or `Creator: LibreOffice Writer`
-- Source: `.docx`, `.odt` files
-- Signal: `Tagged: Yes` (Word exports tagged PDFs by default), revision metadata visible
-
-**ReportLab / fpdf2 / programmatic Python PDF**
-- Python requirements: `reportlab`, `fpdf2`, `borb` in requirements.txt or pyproject.toml
-- PDF metadata: `Producer: ReportLab PDF Library` or `Producer: fpdf2`
-- Source: Python files calling `canvas.drawString()`, `Paragraph()`, `SimpleDocTemplate()`
-- Signal: very structured tabular layout, no HTML source
-
-**Docusaurus / Hugo / Sphinx / other static site tools** (for HTML output, not PDF)
-- Source: `docusaurus.config.js`, `config.yaml` with `theme:`, `conf.py` with Sphinx imports
-- Build: `npm run build`, `hugo`, `make html`
-- Note: these produce HTML, not PDF — a separate PDF step is needed
-
-**React-PDF / pdf-lib / jsPDF** (programmatic PDF generation)
-- package.json: `"@react-pdf/renderer"`, `"pdf-lib"`, `"jspdf"`
-- Source: JSX/TSX with `<Document>`, `<Page>`, `<View>` components (React-PDF)
-- Signal: very structured data-driven output, no HTML+CSS source
-- Anti-pattern signal: `html2canvas` + `jsPDF` in the same codebase — see rasterization anti-pattern in `references/tools/react-pdf-programmatic.md`
-
-**Pandoc pipeline**
-- Source: `.md` files with YAML frontmatter containing `pdf-engine:`, `template:`, or `bibliography:`
-- Build: `pandoc` commands in Makefile, often with `--pdf-engine=xelatex` or `--pdf-engine=weasyprint`
-- Config: `pandoc.yaml` defaults file, `_quarto.yml` (Quarto project)
-- PDF metadata: inherits from backend engine (LaTeX, WeasyPrint, etc.) — check Producer
-
-### Detection reliability — caveats (read before labelling confidence)
-
-Detection signals can and do mislead. Common failure modes:
-
-- **Monorepos:** `pagedjs` may sit in a sibling workspace with no relationship to the PDF being reviewed. Always check which workspace produced the artifact.
-- **CDN-loaded tools:** Paged.js is frequently loaded via `<script src=".../paged.polyfill.js">` with no npm entry at all. Absence of `pagedjs` in package.json does NOT mean Paged.js isn't in use.
-- **Dead dependencies:** Legacy projects carry unused deps for years. A package in package.json is evidence, not proof.
-- **Shared Chrome metadata:** PDFs made by Chrome and Puppeteer usually carry `Producer: Skia/PDF mNNN` and `Creator: Chromium` or `HeadlessChrome`. Do not key Chrome detection on `Producer: Chromium`. That metadata does not name the pagination engine. Name Paged.js from the package dependency, the polyfill script tag or `Producer: pagedjs-cli` or `Producer: Paged.js`. Check the rendered DOM for `.pagedjs_page`, since the class does not exist in the source files.
-- **Pandoc pipelines:** PDF metadata reflects the backend engine (LaTeX, WeasyPrint), not Pandoc itself. Check for `pandoc` in build scripts separately.
-
-**Rule:** Always corroborate package.json against PDF metadata AND at least one HTML/source signal before labelling confidence above `possible`. If signals disagree, list them all and ask the user.
-
-### Detection output format
-
-After running detection, produce this summary:
-
-```
-## Stack detection
-
-Primary stack:    [tool name]
-Signal evidence:
-  - [signal 1] → [what it tells us]
-  - [signal 2] → [what it tells us]
-  - [any contradicting signals → noted]
-
-Confidence:      [confident (3+ corroborating signals, no contradictions) |
-                  likely (2 signals, minor contradictions) |
-                  possible (1 signal or conflicting signals) |
-                  unknown (no signals — ask)]
-
-Secondary tools: [e.g. "CSS preprocessor: SCSS", "Build system: Make", "Template engine: Jinja2"]
-
-Document type:   [see Phase 2]
-Output targets:  [detected: screen PDF | print | web | unknown]
-
-Questions needed before full assessment: [list only what can't be inferred]
-```
+Load `references/detection.md` for the detection signals, the reliability caveats and the stack detection output format. Detect before you ask the user anything.
 
 ---
 
@@ -234,6 +99,24 @@ Present these as a short, friendly set of questions — not a form. Frame each o
 7. **Quick recommendation now, or full interview first?**
    - Quick: "I'll give you a top-2 recommendation based on what you've described, and tell you what assumptions I'm making. You can correct them."
    - Full interview: "I'll ask you 6-8 questions first so I can give you a more precisely tailored recommendation."
+
+**Ask only when the output goes to print or to people who need accessible documents:**
+8. **Printer's specification** (ask when output goes to print). Ask what bleed, trim size and colour profile the printer requires. Ask for CMYK or a named ICC profile, and the PDF/X level, for example PDF/X-4. Record the answers as the acceptance standard for the file.
+9. **Accessibility requirement** (ask when the document must be accessible). Ask whether the file must be a tagged PDF or must meet PDF/UA. Record the answer as the acceptance standard for the file.
+
+### Press-ready and accessible claims
+
+Call a file press-ready only when each item of the printer's stated specification is checked and matches. Call a file accessible only when the stated requirement is checked and met. If any stated item has no check, withhold the claim and write "not checked" in the report. If the user gives no specification or requirement, do not use the words press-ready or accessible.
+
+| Item | Check with tools this skill names |
+|---|---|
+| Bleed and trim size | Run `pdfinfo -box`. Compare the BleedBox and TrimBox with the printer's stated bleed and trim size. |
+| Colour profile (CMYK or named ICC profile) | not checked |
+| PDF/X level | not checked |
+| Tagged PDF | Run `pdfinfo`. Read the `Tagged:` field. |
+| PDF/UA | not checked |
+
+A tool's rating in the comparison matrix is not a check and does not support either claim. For commercial press work, state that a prepress review is required.
 
 ---
 
@@ -403,7 +286,7 @@ Read `references/matrix-review.md` for the five review steps, the per-row questi
 
 **"Stay + fix" is a first-class option — except when the tool is a liability.** Resist the temptation to recommend migration for its own sake. Sometimes the current tool is correct and the real problem is a CSS bug. Say so when that's true.
 
-**Exception — unmaintained or CVE-carrying tooling:** When the detected stack is wkhtmltopdf (last release 2020, known CVEs, archived repository) or any tool with active unpatched security vulnerabilities, do NOT present "stay + fix" as an option. Emit a migration brief only. Recommending "stay" for tooling with unpatched CVEs in a server-side rendering pipeline is malpractice, not caution.
+**wkhtmltopdf and other unmaintained tooling.** Recommend moving away from wkhtmltopdf. Stay only when all three conditions hold: the templates are simple and will not change, the tool never renders untrusted HTML or URLs, and the report states that wkhtmltopdf is archived and gets no security fixes. Name a known CVE only if the repo already names one. For any other tool with active unpatched security vulnerabilities, emit a migration brief only.
 
 **Plain language is not dumbing down.** Technical and plain explanations serve different purposes. The technical explanation tells the user what is happening and where to fix it. The plain explanation helps them explain the decision to a client, manager, or designer who doesn't know what "CSS Paged Media" means. Both are necessary.
 

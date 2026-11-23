@@ -1,6 +1,6 @@
 {
   "name": "visual-stack-review",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Document production stack analyser. Detects the renderer behind a document, classifies the document type, and recommends whether to stay and fix or migrate to another tool.",
   "author": {
     "name": "Daniel May",
